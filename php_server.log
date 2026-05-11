@@ -413,3 +413,33 @@
 [Mon May 11 07:47:20 2026] 127.0.0.1:50294 Accepted
 [Mon May 11 07:47:20 2026] 127.0.0.1:50294 [200]: GET /settings.php
 [Mon May 11 07:47:20 2026] 127.0.0.1:50294 Closing
+[Mon May 11 09:00:16 2026] 127.0.0.1:48938 Accepted
+[Mon May 11 09:00:16 2026] 127.0.0.1:48938 [200]: GET /install.php
+[Mon May 11 09:00:16 2026] 127.0.0.1:48938 Closing
+[Mon May 11 09:00:18 2026] 127.0.0.1:48948 Accepted
+[Mon May 11 09:00:18 2026] 127.0.0.1:48948 [200]: POST /install.php
+[Mon May 11 09:00:18 2026] 127.0.0.1:48948 Closing
+[Mon May 11 09:00:20 2026] 127.0.0.1:48958 Accepted
+[Mon May 11 09:00:20 2026] 127.0.0.1:48958 [200]: GET /login.php
+[Mon May 11 09:00:20 2026] 127.0.0.1:48958 Closing
+[Mon May 11 09:00:21 2026] 127.0.0.1:48972 Accepted
+[Mon May 11 09:00:22 2026] 127.0.0.1:48972 [302]: POST /login.php
+[Mon May 11 09:00:22 2026] 127.0.0.1:48972 Closing
+[Mon May 11 09:00:22 2026] 127.0.0.1:48986 Accepted
+[Mon May 11 09:00:22 2026] 127.0.0.1:48986 [200]: GET /index.php
+[Mon May 11 09:00:22 2026] 127.0.0.1:48986 Closing
+[Mon May 11 09:00:22 2026] 127.0.0.1:48992 Accepted
+[Mon May 11 09:00:22 2026] 127.0.0.1:48998 Accepted
+[Mon May 11 09:00:22 2026] 127.0.0.1:48992 [200]: GET /assets/css/style.css
+[Mon May 11 09:00:22 2026] 127.0.0.1:48998 [200]: GET /assets/js/app.js
+[Mon May 11 09:00:22 2026] 127.0.0.1:48992 Closing
+[Mon May 11 09:00:22 2026] 127.0.0.1:48998 Closing
+[Mon May 11 09:00:22 2026] 127.0.0.1:49004 Accepted
+[Mon May 11 09:00:22 2026] 127.0.0.1:49004 [200]: GET /api.php?action=list&path=&show_hidden=false
+[Mon May 11 09:00:22 2026] 127.0.0.1:49004 Closing
+[Mon May 11 09:00:22 2026] 127.0.0.1:49014 Accepted
+[Mon May 11 09:00:22 2026] 127.0.0.1:49014 [200]: GET /api.php?action=stats
+[Mon May 11 09:00:22 2026] 127.0.0.1:49014 Closing
+[Mon May 11 09:00:26 2026] 127.0.0.1:37334 Accepted
+[Mon May 11 09:00:26 2026] 127.0.0.1:37334 [200]: GET /settings.php
+[Mon May 11 09:00:26 2026] 127.0.0.1:37334 Closing

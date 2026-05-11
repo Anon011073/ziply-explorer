@@ -163,8 +163,8 @@ $csrf_token = generate_csrf_token();
                         <i data-lucide="eye-off" id="icon-hidden" class="w-4 h-4"></i>
                     </button>
                     <div class="w-px h-6 bg-slate-200 dark:bg-dark-border mx-1"></div>
-                    <select id="sort-options" class="bg-transparent text-sm font-medium focus:outline-none cursor-pointer">
-                        <option value="name-asc">Name A-Z</option>
+                    <select id="sort-options" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium focus:outline-none cursor-pointer border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 transition-all">
+                        <option value="name-asc" class="bg-white dark:bg-slate-800">Name A-Z</option>
                         <option value="name-desc">Name Z-A</option>
                         <option value="size-desc">Size Large</option>
                         <option value="size-asc">Size Small</option>

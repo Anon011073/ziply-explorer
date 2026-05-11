@@ -76,6 +76,9 @@ async function loadFiles(path = state.currentPath) {
  * Render Files
  */
 function renderFiles() {
+    if (state.currentPath !== undefined) {
+        elements.fileGrid.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 min-h-[100px]";
+    }
     const query = elements.searchInput.value.toLowerCase();
     let filteredFiles = state.files.filter(f => f.name.toLowerCase().includes(query));
 
@@ -199,12 +202,18 @@ function createGridItem(file) {
     `;
 
     div.onclick = (e) => {
-        if (e.ctrlKey || e.metaKey) {
+        if (e.ctrlKey || e.metaKey || e.shiftKey) {
             toggleSelect(file.name);
         } else {
-            window.handleOpen(file.name);
+            state.selectedFiles = [file.name];
+            renderFiles();
             selectFile(file);
         }
+    };
+
+    div.ondblclick = (e) => {
+        e.preventDefault();
+        window.handleOpen(file.name);
     };
 
     return div;
@@ -234,12 +243,18 @@ function createListItem(file) {
     `;
 
     tr.onclick = (e) => {
-        if (e.ctrlKey || e.metaKey) {
+        if (e.ctrlKey || e.metaKey || e.shiftKey) {
             toggleSelect(file.name);
         } else {
-            window.handleOpen(file.name);
+            state.selectedFiles = [file.name];
+            renderFiles();
             selectFile(file);
         }
+    };
+
+    tr.ondblclick = (e) => {
+        e.preventDefault();
+        window.handleOpen(file.name);
     };
 
     return tr;
@@ -443,7 +458,10 @@ function openEditor(file) {
         if (data.success) {
             showToast('File saved');
             elements.modalContainer.classList.add('hidden');
-            loadFiles();
+            const currentSelection = [...state.selectedFiles];
+            await loadFiles();
+            state.selectedFiles = currentSelection;
+            renderFiles();
         } else {
             showToast(data.error, 'error');
         }
@@ -530,6 +548,7 @@ function setupEventListeners() {
         elements.fileGrid.innerHTML = '';
         elements.fileList.classList.add('hidden');
         elements.fileGrid.classList.remove('hidden');
+        elements.fileGrid.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 min-h-[100px]";
         elements.breadcrumbs.innerHTML = '<span class="font-bold">Favorite Items</span>';
         renderFiles();
     };
@@ -541,6 +560,7 @@ function setupEventListeners() {
         elements.fileGrid.innerHTML = '';
         elements.fileList.classList.add('hidden');
         elements.fileGrid.classList.remove('hidden');
+        elements.fileGrid.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 min-h-[100px]";
         elements.breadcrumbs.innerHTML = '<span class="font-bold">Recent Files</span>';
         renderFiles();
     };
@@ -553,6 +573,9 @@ function setupEventListeners() {
         elements.fileList.classList.add('hidden');
         elements.fileGrid.classList.remove('hidden');
         elements.breadcrumbs.innerHTML = '<span class="font-bold">Active Share Links</span>';
+
+        // Add a top padding/margin to the grid for this specific view to avoid overlap
+        elements.fileGrid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2";
 
         data.shares.forEach(share => {
             const div = document.createElement('div');
