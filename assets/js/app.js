@@ -406,18 +406,26 @@ function selectFile(file) {
 function openEditor(file) {
     const path = (state.currentPath ? state.currentPath + '/' : '') + file.name;
     elements.modalContainer.classList.remove('hidden');
+
+    const defaultTheme = localStorage.getItem('editorTheme') || (document.documentElement.classList.contains('dark') ? 'dracula' : 'default');
+
     elements.modalContent.innerHTML = `
         <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-slate-800">
             <div class="flex items-center gap-3">
                 <i data-lucide="edit-3" class="w-5 h-5 text-blue-500"></i>
-                <span class="font-bold">${file.name}</span>
+                <span class="font-bold truncate max-w-[200px]">${file.name}</span>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-4">
+                <select id="editor-theme-select" class="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1 text-xs outline-none">
+                    <option value="default" ${defaultTheme === 'default' ? 'selected' : ''}>Light Theme</option>
+                    <option value="dracula" ${defaultTheme === 'dracula' ? 'selected' : ''}>Dracula</option>
+                    <option value="ayu-mirage" ${defaultTheme === 'ayu-mirage' ? 'selected' : ''}>Ayu Mirage</option>
+                </select>
                 <button id="editor-save" class="px-4 py-1.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-500 transition-colors">Save Changes</button>
                 <button id="editor-close" class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
         </div>
-        <div class="flex-1 relative overflow-hidden">
+        <div class="flex-1 relative overflow-hidden bg-[#282a36]">
             <textarea id="editor-textarea"></textarea>
         </div>
     `;
@@ -425,11 +433,18 @@ function openEditor(file) {
 
     const editor = CodeMirror.fromTextArea(document.getElementById('editor-textarea'), {
         lineNumbers: true,
-        theme: document.documentElement.classList.contains('dark') ? 'ayu-mirage' : 'default',
+        theme: defaultTheme,
         mode: getCodeMirrorMode(file.extension),
         viewportMargin: Infinity,
         lineWrapping: true
     });
+
+    // Theme selector
+    document.getElementById('editor-theme-select').onchange = (e) => {
+        const theme = e.target.value;
+        editor.setOption('theme', theme);
+        localStorage.setItem('editorTheme', theme);
+    };
 
     // Load content
     fetch(`api.php?action=get_content&path=${encodeURIComponent(path)}`)
@@ -437,6 +452,7 @@ function openEditor(file) {
         .then(data => {
             if (data.content !== undefined) {
                 editor.setValue(data.content);
+                setTimeout(() => editor.refresh(), 100);
             }
         });
 

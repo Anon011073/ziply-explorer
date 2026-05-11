@@ -52,6 +52,7 @@ $csrf_token = generate_csrf_token();
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/ayu-mirage.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
@@ -137,9 +138,9 @@ $csrf_token = generate_csrf_token();
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-dark-bg">
+        <main class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-dark-bg overflow-hidden">
             <!-- Toolbar -->
-            <div class="h-14 border-b border-slate-200 dark:border-dark-border bg-white/50 dark:bg-dark-surface/50 backdrop-blur-md flex items-center justify-between px-6 sticky top-16 z-20">
+            <div class="h-14 border-b border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface flex items-center justify-between px-6 z-20">
                 <nav id="breadcrumbs" class="flex items-center text-sm font-medium text-slate-500 overflow-x-auto whitespace-nowrap scrollbar-hide">
                     <!-- Breadcrumbs will be injected here -->
                 </nav>

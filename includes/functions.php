@@ -135,8 +135,18 @@ function generate_thumbnail($file_path, $size = 200) {
     if (file_exists($cache_file)) return $cache_file;
 
     $img_info = @getimagesize($real_path);
-    if (!$img_info) return false;
+    if (!$img_info) {
+        error_log("Thumbnail failed: getimagesize returned false for $real_path");
+        return false;
+    }
     list($width, $height) = $img_info;
+
+    // Safety check for large images
+    if ($width * $height > 10000000) { // 10MP limit
+        error_log("Thumbnail skipped: Image too large ($width x $height)");
+        return false;
+    }
+
     $ratio = $width / $height;
 
     if ($width > $height) {
@@ -147,16 +157,12 @@ function generate_thumbnail($file_path, $size = 200) {
         $new_width = $size * $ratio;
     }
 
-    $src = null;
-    switch ($ext) {
-        case 'jpg':
-        case 'jpeg': $src = @imagecreatefromjpeg($real_path); break;
-        case 'png': $src = @imagecreatefrompng($real_path); break;
-        case 'gif': $src = @imagecreatefromgif($real_path); break;
-        case 'webp': $src = @imagecreatefromwebp($real_path); break;
-    }
+    $src = @imagecreatefromstring(file_get_contents($real_path));
 
-    if (!$src) return false;
+    if (!$src) {
+        error_log("Thumbnail failed: Could not create image from source ($ext) $real_path");
+        return false;
+    }
 
     $dst = imagecreatetruecolor($new_width, $new_height);
 
