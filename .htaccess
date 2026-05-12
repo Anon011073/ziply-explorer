@@ -1,0 +1,24 @@
+# Protect sensitive directories
+<Directory "data">
+    Order allow,deny
+    Deny from all
+</Directory>
+
+<Directory "includes">
+    Order allow,deny
+    Deny from all
+</Directory>
+
+# Prevent script execution in uploads (if ROOT_PATH is within web root)
+<FilesMatch "\.(php|phtml|php3|php4|php5|phps|phar|exe|bat|sh)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Secure headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "same-origin"
+</IfModule>
