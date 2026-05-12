@@ -1,0 +1,14 @@
+# Disable directory listing
+Options -Indexes
+
+# Prevent direct access to sensitive files
+<FilesMatch "\.(sqlite|log|tmp|php)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Allow public access to thumbnails (webp)
+<FilesMatch "\.webp$">
+    Order deny,allow
+    Allow from all
+</FilesMatch>

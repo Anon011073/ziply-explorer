@@ -248,6 +248,7 @@ switch ($action) {
         break;
 
     case 'thumbnail':
+        session_write_close();
         $path = $_GET['path'] ?? '';
         $thumb = generate_thumbnail($path);
         if ($thumb) {

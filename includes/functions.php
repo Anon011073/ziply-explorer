@@ -54,6 +54,7 @@ function list_dir($dir_path) {
 
         $items[] = [
             'name' => $file,
+            'path' => ($dir_path ? trim($dir_path, '/') . '/' : '') . $file,
             'is_dir' => is_dir($path),
             'size' => is_dir($path) ? 0 : $stat['size'],
             'modified' => $stat['mtime'],
@@ -173,7 +174,12 @@ function generate_thumbnail($file_path, $size = 200) {
     }
 
     imagecopyresampled($dst, $src, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-    imagewebp($dst, $cache_file, 80);
+
+    $tmp_file = $cache_file . '.' . uniqid() . '.tmp';
+    imagewebp($dst, $tmp_file, 80);
+    if (file_exists($tmp_file)) {
+        rename($tmp_file, $cache_file);
+    }
 
     imagedestroy($src);
     imagedestroy($dst);

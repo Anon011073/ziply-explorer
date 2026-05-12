@@ -175,13 +175,46 @@ function showContextMenu(x, y, file) {
 window.handleOpen = (name) => {
     const file = state.files.find(f => f.name === name);
     if (file.is_dir) {
-        loadFiles((state.currentPath ? state.currentPath + '/' : '') + name);
+        const path = file.path || (state.currentPath ? state.currentPath + '/' : '') + name;
+        loadFiles(path);
     } else {
+        const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(file.extension);
         const editable = ['js', 'php', 'css', 'html', 'md', 'json', 'sql', 'txt'].includes(file.extension);
-        if (editable) openEditor(file);
+
+        if (isImage) openPreview(file);
+        else if (editable) openEditor(file);
         else selectFile(file);
     }
 };
+
+function openPreview(file) {
+    const path = file.path || (state.currentPath ? state.currentPath + '/' : '') + file.name;
+    const downloadUrl = `download.php?path=${encodeURIComponent(path)}`;
+
+    elements.modalContainer.classList.remove('hidden');
+    elements.modalContent.innerHTML = `
+        <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface">
+            <div class="flex items-center gap-3">
+                <i data-lucide="image" class="w-5 h-5 text-blue-500"></i>
+                <span class="font-bold truncate max-w-[300px]">${file.name}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="${downloadUrl}" target="_blank" class="flex items-center gap-2 px-4 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-dark-text text-sm font-semibold rounded-lg hover:bg-slate-200 transition-colors">
+                    <i data-lucide="maximize-2" class="w-4 h-4"></i> View Full Size
+                </a>
+                <button id="modal-close" class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+        </div>
+        <div class="flex-1 flex items-center justify-center bg-slate-900/10 dark:bg-black/20 overflow-hidden p-8">
+            <img src="${downloadUrl}" class="max-w-full max-h-full object-contain rounded-lg shadow-xl" alt="${file.name}">
+        </div>
+    `;
+    lucide.createIcons();
+
+    document.getElementById('modal-close').onclick = () => {
+        elements.modalContainer.classList.add('hidden');
+    };
+}
 
 /**
  * Create Grid Item
@@ -192,10 +225,11 @@ function createGridItem(file) {
 
     const icon = getFileIcon(file);
     const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(file.extension);
+    const filePath = file.path || (state.currentPath ? state.currentPath + '/' : '') + file.name;
 
     div.innerHTML = `
         <div class="aspect-square rounded-lg mb-3 flex items-center justify-center bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
-            ${isImage ? `<img src="api.php?action=thumbnail&path=${encodeURIComponent((state.currentPath ? state.currentPath + '/' : '') + file.name)}" class="w-full h-full object-cover" loading="lazy">` : `<i data-lucide="${icon}" class="w-10 h-10 ${file.is_dir ? 'text-blue-500 fill-blue-500/20' : 'text-slate-400'}"></i>`}
+            ${isImage ? `<img src="api.php?action=thumbnail&path=${encodeURIComponent(filePath)}" class="w-full h-full object-cover shadow-sm transition-opacity duration-300 opacity-0" onload="this.classList.remove('opacity-0')">` : `<i data-lucide="${icon}" class="w-10 h-10 ${file.is_dir ? 'text-blue-500 fill-blue-500/20' : 'text-slate-400'}"></i>`}
         </div>
         <div class="text-sm font-medium truncate mb-1" title="${file.name}">${file.name}</div>
         <div class="text-[10px] text-slate-400">${file.is_dir ? 'Folder' : formatBytes(file.size)}</div>
@@ -358,11 +392,12 @@ function selectFile(file) {
 
     const icon = getFileIcon(file);
     const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(file.extension);
+    const filePath = file.path || (state.currentPath ? state.currentPath + '/' : '') + file.name;
 
     elements.detailsContent.innerHTML = `
         <div class="flex flex-col items-center text-center space-y-4">
             <div class="w-32 h-32 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-dark-border">
-                ${isImage ? `<img src="api.php?action=thumbnail&path=${encodeURIComponent((state.currentPath ? state.currentPath + '/' : '') + file.name)}" class="w-full h-full object-cover">` : `<i data-lucide="${icon}" class="w-12 h-12 text-slate-400"></i>`}
+                ${isImage ? `<img src="api.php?action=thumbnail&path=${encodeURIComponent(filePath)}" class="w-full h-full object-cover shadow-sm transition-opacity duration-300 opacity-0" onload="this.classList.remove('opacity-0')">` : `<i data-lucide="${icon}" class="w-12 h-12 text-slate-400"></i>`}
             </div>
             <div>
                 <h3 class="font-bold text-lg truncate w-full max-w-[200px]" title="${file.name}">${file.name}</h3>
@@ -404,10 +439,10 @@ function selectFile(file) {
 }
 
 function openEditor(file) {
-    const path = (state.currentPath ? state.currentPath + '/' : '') + file.name;
+    const path = file.path || (state.currentPath ? state.currentPath + '/' : '') + file.name;
     elements.modalContainer.classList.remove('hidden');
 
-    const defaultTheme = localStorage.getItem('editorTheme') || (document.documentElement.classList.contains('dark') ? 'dracula' : 'default');
+    const defaultTheme = localStorage.getItem('editorTheme') || 'dracula';
 
     elements.modalContent.innerHTML = `
         <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-slate-800">
@@ -419,13 +454,16 @@ function openEditor(file) {
                 <select id="editor-theme-select" class="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1 text-xs outline-none">
                     <option value="default" ${defaultTheme === 'default' ? 'selected' : ''}>Light Theme</option>
                     <option value="dracula" ${defaultTheme === 'dracula' ? 'selected' : ''}>Dracula</option>
+                    <option value="monokai" ${defaultTheme === 'monokai' ? 'selected' : ''}>Monokai</option>
+                    <option value="material" ${defaultTheme === 'material' ? 'selected' : ''}>Material</option>
+                    <option value="nord" ${defaultTheme === 'nord' ? 'selected' : ''}>Nord</option>
                     <option value="ayu-mirage" ${defaultTheme === 'ayu-mirage' ? 'selected' : ''}>Ayu Mirage</option>
                 </select>
                 <button id="editor-save" class="px-4 py-1.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-500 transition-colors">Save Changes</button>
                 <button id="editor-close" class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
         </div>
-        <div class="flex-1 relative overflow-hidden bg-[#282a36]">
+        <div class="flex-1 relative overflow-hidden">
             <textarea id="editor-textarea"></textarea>
         </div>
     `;
@@ -766,10 +804,13 @@ function setupEventListeners() {
  * Global Handlers for Detail Panel
  */
 window.handleDelete = async (name) => {
+    const file = state.files.find(f => f.name === name);
+    const path = file ? (file.path || (state.currentPath ? state.currentPath + '/' : '') + name) : (state.currentPath ? state.currentPath + '/' : '') + name;
+
     if (confirm(`Are you sure you want to delete ${name}?`)) {
         const formData = new FormData();
         formData.append('csrf_token', elements.csrfToken);
-        formData.append('items[]', (state.currentPath ? state.currentPath + '/' : '') + name);
+        formData.append('items[]', path);
 
         const response = await fetch('api.php?action=delete', {
             method: 'POST',
@@ -786,11 +827,14 @@ window.handleDelete = async (name) => {
 };
 
 window.handleRename = async (name) => {
+    const file = state.files.find(f => f.name === name);
+    const path = file ? (file.path || (state.currentPath ? state.currentPath + '/' : '') + name) : (state.currentPath ? state.currentPath + '/' : '') + name;
+
     const newName = prompt('Enter new name:', name);
     if (newName && newName !== name) {
         const formData = new FormData();
         formData.append('csrf_token', elements.csrfToken);
-        formData.append('old_path', (state.currentPath ? state.currentPath + '/' : '') + name);
+        formData.append('old_path', path);
         formData.append('new_name', newName);
 
         const response = await fetch('api.php?action=rename', {
@@ -806,7 +850,8 @@ window.handleRename = async (name) => {
 };
 
 window.handleDownload = (name) => {
-    const path = (state.currentPath ? state.currentPath + '/' : '') + name;
+    const file = state.files.find(f => f.name === name);
+    const path = file ? (file.path || (state.currentPath ? state.currentPath + '/' : '') + name) : (state.currentPath ? state.currentPath + '/' : '') + name;
     window.open(`download.php?path=${encodeURIComponent(path)}`, '_blank');
 };
 
@@ -822,7 +867,8 @@ window.handleToggleFavorite = async (path) => {
 };
 
 window.handleShare = async (name) => {
-    const path = (state.currentPath ? state.currentPath + '/' : '') + name;
+    const file = state.files.find(f => f.name === name);
+    const path = file ? (file.path || (state.currentPath ? state.currentPath + '/' : '') + name) : (state.currentPath ? state.currentPath + '/' : '') + name;
     const password = prompt('Set a password for this share (optional):');
     const expires = prompt('Set expiration (e.g. 1 hour, 1 day, 7 days) (optional):');
 
@@ -846,9 +892,12 @@ window.handleShare = async (name) => {
 };
 
 window.handleUnzip = async (name) => {
+    const file = state.files.find(f => f.name === name);
+    const path = file ? (file.path || (state.currentPath ? state.currentPath + '/' : '') + name) : (state.currentPath ? state.currentPath + '/' : '') + name;
+
     const formData = new FormData();
     formData.append('csrf_token', elements.csrfToken);
-    formData.append('path', (state.currentPath ? state.currentPath + '/' : '') + name);
+    formData.append('path', path);
 
     showToast('Extracting...');
     const response = await fetch('api.php?action=unzip', {
